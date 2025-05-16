@@ -1,0 +1,24 @@
+# dependencies
+node_modules/
+
+# build artifacts
+/dist
+/build
+
+# environment variables
+.env
+.env.*
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS and IDE files
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
