@@ -24,6 +24,7 @@ mongoose.connect(DB_URI)
 
 
 // Define the /healthcheck route
+//for postman helath check api:http://localhost:5000/healthcheck
 app.get('/healthcheck', (req, res) => {
   // Optional: Include database connection status in healthcheck
   const dbStatus = mongoose.connection.readyState; // 0: disconnected, 1: connected, etc.
