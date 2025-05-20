@@ -1,4 +1,4 @@
-import React from "react";
+// import React from "react";
 
 const InstructorAnalytics = () => {
   return (
@@ -198,3 +198,15 @@ const InstructorAnalytics = () => {
                       <span className="uk-switch-button"></span>
                     </span>
                   </a>
+                </div>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </header>
+      {/* ...rest of your analytics page content... */}
+    </>
+  );
+};
+
+export default InstructorAnalytics;
