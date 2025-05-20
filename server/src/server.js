@@ -51,11 +51,44 @@ app.post('/courses', async (req, res) => {
     const savedCourse = await newCourse.save();
     res.status(201).json(savedCourse);
   } catch (error) {
+    if (error.code === 11000 && error.keyPattern && error.keyPattern.courseId) {
+      return res.status(409).json({ message: 'Course ID already exists.' }); // 409 Conflict
+    }
     console.error('Error creating course:', error);
     res.status(500).json({ message: 'Failed to create course', error: error.message });
   }
 });
 // --- End of POST /courses ---
+
+// --- GET /courses: Get all courses ---
+app.get('/courses', async (req, res) => {
+  try {
+    const courses = await Course.find();
+    res.status(200).json(courses);
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    res.status(500).json({ message: 'Failed to retrieve courses', error: error.message });
+  }
+});
+// --- End of GET /courses ---
+
+// --- GET /courses/:id: Get details of a specific course ---
+app.get('/courses/:id', async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const course = await Course.findOne({ courseId: courseId }); // Find by courseId
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json(course);
+  } catch (error) {
+    console.error('Error fetching course details:', error);
+    res.status(500).json({ message: 'Failed to retrieve course details', error: error.message });
+  }
+});
+// --- End of GET /courses/:id ---
 
 // Define the port
 const PORT = process.env.PORT || 5000;
