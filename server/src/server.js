@@ -23,6 +23,20 @@ mongoose.connect(DB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 // -------------------------------
 
+// --- Authentication Middleware ---
+const AUTH_TOKEN = '123'; // Replace with a real secret
+
+const authenticateAdmin = (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (authHeader === AUTH_TOKEN) {
+    next(); // Allow the request to proceed
+  } else {
+    res.status(401).json({ message: 'Unauthorized' });
+  }
+};
+// --- End of Authentication Middleware ---
+
 // Define the /healthcheck route
 // For Postman health check API: http://localhost:5000/healthcheck
 app.get('/healthcheck', (req, res) => {
@@ -35,7 +49,7 @@ app.get('/healthcheck', (req, res) => {
 });
 
 // --- POST /courses: Add a new course ---
-app.post('/courses', async (req, res) => {
+app.post('/courses', authenticateAdmin, async (req, res) => { // Apply middleware here
   try {
     const { courseId, title, description, price, instructor, category } = req.body;
 
@@ -110,7 +124,7 @@ app.get('/courses/:id', async (req, res) => {
 // --- End of GET /courses/:id ---
 
 // --- PUT /courses/:id: Update course details ---
-app.put('/courses/:id', async (req, res) => {
+app.put('/courses/:id', authenticateAdmin, async (req, res) => { // Apply middleware here
   try {
     const courseId = req.params.id;
     const updateData = req.body;
