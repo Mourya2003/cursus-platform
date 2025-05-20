@@ -60,6 +60,25 @@ app.post('/courses', async (req, res) => {
 });
 // --- End of POST /courses ---
 
+// --- DELETE /courses/:id: Remove a course ---
+app.delete('/courses/:id', async (req, res) => {
+  try {
+    const courseId = req.params.id;
+
+    const deletedCourse = await Course.findOneAndDelete({ courseId: courseId });
+
+    if (!deletedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json({ message: 'Course deleted successfully', deletedCourse });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ message: 'Failed to delete course', error: error.message });
+  }
+});
+// --- End of DELETE /courses/:id ---
+
 // --- GET /courses: Get all courses ---
 app.get('/courses', async (req, res) => {
   try {
@@ -89,6 +108,26 @@ app.get('/courses/:id', async (req, res) => {
   }
 });
 // --- End of GET /courses/:id ---
+
+// --- PUT /courses/:id: Update course details ---
+app.put('/courses/:id', async (req, res) => {
+  try {
+    const courseId = req.params.id;
+    const updateData = req.body;
+
+    const updatedCourse = await Course.findOneAndUpdate({ courseId: courseId }, updateData, { new: true });
+
+    if (!updatedCourse) {
+      return res.status(404).json({ message: 'Course not found' });
+    }
+
+    res.status(200).json(updatedCourse);
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).json({ message: 'Failed to update course', error: error.message });
+  }
+});
+// --- End of PUT /courses/:id ---
 
 // Define the port
 const PORT = process.env.PORT || 5000;
