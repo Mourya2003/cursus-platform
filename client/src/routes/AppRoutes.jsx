@@ -46,10 +46,13 @@ import ShoppingCart from '../pages/ShoppingCart.jsx';
 import SignIn from '../pages/SignIn.jsx';
 import SignUpSteps from '../pages/SignUpSteps.jsx';
 import SignUp from '../pages/SignUp.jsx';
+
+// import '../styles/signin.css';
 // ...import other pages...
 // import React component corresponding to help.html
 
 // ...import other pages
+
 
 const AppRoutes = () => (
   <BrowserRouter>
