@@ -1,12 +1,13 @@
 import React from "react";
-
+import logo from "../assets/logo.svg";
+import onlinecourse from "../assets/dashboard/online-course.svg";
 const SignIn = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-pink-100 py-8 px-4">
     <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl p-0 md:flex md:overflow-hidden">
       {/* Illustration Section */}
       <div className="hidden md:flex items-center justify-center bg-indigo-50 p-8 md:w-1/2">
         <img
-          src="/images/education-illustration.svg"
+          src={onlinecourse}
           alt="Education Illustration"
           className="w-64 h-64 object-contain"
         />
@@ -15,7 +16,7 @@ const SignIn = () => (
       <div className="w-full md:w-1/2 p-8">
         <div className="flex flex-col items-center mb-6">
           <a href="/" className="mb-3">
-            <img src="/images/logo.svg" alt="Platform Logo" className="h-10" />
+            <img src={logo} alt="Platform Logo" className="h-10" />
           </a>
         </div>
         <h2 className="text-2xl font-bold text-indigo-700 mb-1 text-center">Welcome Back, Learner!</h2>
@@ -82,14 +83,14 @@ const SignIn = () => (
           Or <a href="/forgot_password" className="text-indigo-600 hover:underline">Forgot Password?</a>
         </p>
         <p className="text-center text-gray-600 text-sm">
-          New to Edututs+?{' '}
+          New to Cursus?{' '}
           <a href="/sign_up" className="text-pink-500 font-medium hover:underline">
             Create an account
           </a>
         </p>
         <div className="mt-8 text-center text-gray-400 text-xs">
           <img src="/images/sign_logo.png" alt="" className="inline h-5 mr-1" />
-          © 2025 <strong className="font-semibold text-gray-600">Edututs+</strong>. All Rights Reserved.
+          © 2025 <strong className="font-semibold text-gray-600">Cursus</strong>. All Rights Reserved.
         </div>
       </div>
     </div>

@@ -1,16 +1,16 @@
 import React from "react";
-
+import logo from "../assets/logo.svg";
 const SignUp = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-pink-100 py-8 px-4">
     <div className="container max-w-xl w-full">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
         <a href="/" className="mb-2">
-          <img src="images/logo.svg" alt="Cursus Logo" className="h-10" />
+          <img src={logo} alt="Cursus Logo" className="h-10" />
         </a>
-        <a href="/">
+        {/* <a href="/">
           <img src="images/ct_logo.svg" alt="Cursus Inverse Logo" className="h-10 hidden dark:block" />
-        </a>
+        </a> */}
       </div>
       {/* Card */}
       <div className="mx-auto bg-white rounded-3xl shadow-2xl p-8">
