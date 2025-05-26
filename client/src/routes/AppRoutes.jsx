@@ -57,7 +57,7 @@ import SignUp from '../pages/SignUp.jsx';
 const AppRoutes = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<AboutUs />} />
+      {/* <Route path="/" element={<AboutUs />} />
       <Route path="/about" element={<AboutUs />} />
       <Route path="/blog" element={<BlogSingleView />} />
       <Route path="/certification-center" element={<CertificationCenter />} />
@@ -124,9 +124,9 @@ const AppRoutes = () => (
       <Route path="/saved-courses" element={<SavedCourses />} />
       <Route path="/search-results" element={<SearchResults />} />
       <Route path="/setting" element={<Setting />} />
-      <Route path="/shopping-cart" element={<ShoppingCart />} />
+      <Route path="/shopping-cart" element={<ShoppingCart />} /> */}
       <Route path="/sign_in" element={<SignIn />} />
-      <Route path="/sign_up_steps" element={<SignUpSteps />} />
+      {/* <Route path="/sign_up_steps" element={<SignUpSteps />} /> */}
       <Route path="/sign_up" element={<SignUp />} />
       {/* Add other routes here */}
       {/* Example: <Route path="/contact" element={<Contact />} /> */}
