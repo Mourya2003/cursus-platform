@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const Course = require('./models/course.model'); // Import Course model correctly
+const User = require('./models/user.model');     // Import User model
+const jwt = require('jsonwebtoken');             // Import jsonwebtoken
 
 // Load environment variables from .env file
 dotenv.config();
@@ -24,7 +26,9 @@ mongoose.connect(DB_URI)
 // -------------------------------
 
 // --- Authentication Middleware ---
-const AUTH_TOKEN = '123'; // Replace with a real secret
+// This AUTH_TOKEN is for the basic admin authentication for courses,
+// and will be replaced by JWT logic for user authentication later.
+const AUTH_TOKEN = '123'; // This will be replaced by JWT later for course protection
 
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -47,6 +51,94 @@ app.get('/healthcheck', (req, res) => {
     database: dbStatus === 1 ? 'Connected' : `Disconnected (State: ${dbStatus})`,
   });
 });
+
+// --- Auth Routes ---
+// POST /api/auth/signup - User Registration
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+
+    // Create a new user instance
+    const newUser = new User({
+      username,
+      email,
+      password, // Password will be hashed by the pre-save hook in user.model.js
+      role: role || 'student', // Default role to 'student' if not provided
+    });
+
+    // Save the user to the database
+    const savedUser = await newUser.save();
+
+    // Respond with success message (don't send password back)
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+        role: savedUser.role,
+        createdAt: savedUser.createdAt,
+      },
+    });
+
+  } catch (error) {
+    // Handle specific errors like duplicate username or email
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(409).json({ message: `${field} already exists.`, error: error.message });
+    }
+    // Handle validation errors (e.g., password too short, invalid email)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message, error: error.errors });
+    }
+    console.error('Error during signup:', error);
+    res.status(500).json({ message: 'Failed to register user', error: error.message });
+  }
+});
+
+// POST /api/auth/login - User Login
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // 1. Check if user exists by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // 2. Compare provided password with hashed password
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // 3. Generate JWT
+    const token = jwt.sign(
+      { id: user._id, role: user.role }, // Payload for the token
+      process.env.JWT_SECRET,           // Secret key from .env
+      { expiresIn: '1h' }               // Token expiration time
+    );
+
+    // 4. Send token and user info (excluding password)
+    res.status(200).json({
+      message: 'Login successful',
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+      },
+    });
+
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).json({ message: 'Failed to log in', error: error.message });
+  }
+});
+// --- End of Auth Routes ---
+
 
 // --- POST /courses: Add a new course ---
 app.post('/courses', authenticateAdmin, async (req, res) => { // Apply middleware here
