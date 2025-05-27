@@ -20,7 +20,7 @@ const cardVariants = {
 
 const UpcomingClasses = ({ classes }) => {
   const [showAll, setShowAll] = useState(false);
-  const displayedClasses = showAll ? classes : classes.slice(0, 3); // Show only 3 classes initially
+  const displayedClasses = showAll ? classes : classes.slice(0, 4); // Show only 3 classes initially
 
   return (
     <div>
