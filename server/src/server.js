@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const Course = require('./models/course.model'); // Import Course model correctly
+const User = require('./models/user.model');     // <--- NEW: Import User model
+const jwt = require('jsonwebtoken');             // <--- NEW: Import jsonwebtoken
 
 // Load environment variables from .env file
 dotenv.config();
@@ -24,7 +26,9 @@ mongoose.connect(DB_URI)
 // -------------------------------
 
 // --- Authentication Middleware ---
-const AUTH_TOKEN = '123'; // Replace with a real secret
+// This AUTH_TOKEN is for the basic admin authentication for courses,
+// and will be replaced by JWT logic for user authentication later.
+const AUTH_TOKEN = '123';
 
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -47,6 +51,52 @@ app.get('/healthcheck', (req, res) => {
     database: dbStatus === 1 ? 'Connected' : `Disconnected (State: ${dbStatus})`,
   });
 });
+
+// --- Auth Routes ---
+// <--- NEW: POST /api/auth/signup - User Registration
+app.post('/api/auth/signup', async (req, res) => {
+  try {
+    const { username, email, password, role } = req.body;
+
+    // Create a new user instance
+    const newUser = new User({
+      username,
+      email,
+      password, // Password will be hashed by the pre-save hook in user.model.js
+      role: role || 'student', // Default role to 'student' if not provided
+    });
+
+    // Save the user to the database
+    const savedUser = await newUser.save();
+
+    // Respond with success message (don't send password back)
+    res.status(201).json({
+      message: 'User registered successfully',
+      user: {
+        id: savedUser._id,
+        username: savedUser.username,
+        email: savedUser.email,
+        role: savedUser.role,
+        createdAt: savedUser.createdAt,
+      },
+    });
+
+  } catch (error) {
+    // Handle specific errors like duplicate username or email
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyPattern)[0];
+      return res.status(409).json({ message: `${field} already exists.`, error: error.message });
+    }
+    // Handle validation errors (e.g., password too short, invalid email)
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ message: error.message, error: error.errors });
+    }
+    console.error('Error during signup:', error);
+    res.status(500).json({ message: 'Failed to register user', error: error.message });
+  }
+});
+// --- End of Auth Routes ---
+
 
 // --- POST /courses: Add a new course ---
 app.post('/courses', authenticateAdmin, async (req, res) => { // Apply middleware here
