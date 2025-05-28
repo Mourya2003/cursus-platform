@@ -47,7 +47,7 @@ import SignIn from '../pages/SignIn.jsx';
 import SignUpSteps from '../pages/SignUpSteps.jsx';
 import SignUp from '../pages/SignUp.jsx';
 import StudentDashboard from "../pages/StudentDashboard.jsx";
-
+import DashboardLayout from '../components/DashboardLayout.jsx';
 // import '../styles/signin.css';
 // ...import other pages...
 // import React component corresponding to help.html
@@ -129,7 +129,15 @@ const AppRoutes = () => (
       <Route path="/sign_in" element={<SignIn />} />
       {/* <Route path="/sign_up_steps" element={<SignUpSteps />} /> */}
       <Route path="/sign_up" element={<SignUp />} />
-      <Route path="/dashboard" element={<StudentDashboard />} />
+      {/* <Route path="/dashboard" element={<StudentDashboard />} /> */}
+      <Route
+          path="/dashboard"
+          element={
+            <DashboardLayout>
+              <StudentDashboard />
+            </DashboardLayout>
+          }
+        />
       {/* Add other routes here */}
       {/* Example: <Route path="/contact" element={<Contact />} /> */}
     </Routes>
