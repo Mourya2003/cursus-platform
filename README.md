@@ -55,3 +55,18 @@ Follow the steps below to install the required tools for this project:
 * **Website:** [https://www.postman.com/downloads](https://www.postman.com/downloads)
 * Download and install the appropriate version for your OS.
 * Use Postman to test your API endpoints easily.
+
+ ### 6. 📐 UI/UX Wireframes
+
+Official design wireframes created in Figma for dashboard and course creation flows.
+
+🔗 **[Figma Wireframes – Dashboard Design](https://www.figma.com/proto/n1XBl2Cd6tfZwVGmAMS63X/Dashboard-wireframes?node-id=1140-6414&t=eRllL7oAA8kTsDsy-1)**
+
+### 🧩 Wireframes Include:
+- 📊 Instructor Dashboard Layout
+- ➕ Course Creation Page Structure
+- 🧭 Sidebar and Navigation Elements
+- 🎨 Consistent use of fonts, spacing, and colors
+- 📱 Mobile responsive design considerations
+- Used by ui/ux instructor  for reference and implementation.
+
