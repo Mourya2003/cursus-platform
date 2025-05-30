@@ -1,5 +1,6 @@
 import React from "react";
 import logo from "../assets/logo.svg";
+
 const SignUp = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-pink-100 py-8 px-4">
     <div className="container max-w-xl w-full">
@@ -8,27 +9,39 @@ const SignUp = () => (
         <a href="/" className="mb-2">
           <img src={logo} alt="Cursus Logo" className="h-10" />
         </a>
-        {/* <a href="/">
-          <img src="images/ct_logo.svg" alt="Cursus Inverse Logo" className="h-10 hidden dark:block" />
-        </a> */}
       </div>
       {/* Card */}
       <div className="mx-auto bg-white rounded-3xl shadow-2xl p-8">
         <h2 className="text-2xl font-bold text-indigo-700 mb-2 text-center">Welcome to Cursus</h2>
         <p className="text-gray-500 mb-6 text-center">Sign Up and Start Learning!</p>
         <form>
+          {/* Username */}
           <div className="mb-4">
             <input
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
               type="text"
-              name="fullname"
-              id="id_fullname"
+              name="username"
+              id="id_username"
               required
-              maxLength="64"
-              placeholder="Full Name"
-              autoComplete="name"
+              maxLength="32"
+              placeholder="Username"
+              autoComplete="username"
             />
           </div>
+          {/* Role */}
+          <div className="mb-4">
+            <select
+              className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
+              name="role"
+              id="id_role"
+              defaultValue="student"
+              required
+            >
+              <option value="student">Student</option>
+              <option value="teacher">Teacher</option>
+            </select>
+          </div>
+          {/* Email */}
           <div className="mb-4">
             <input
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
@@ -41,6 +54,7 @@ const SignUp = () => (
               autoComplete="email"
             />
           </div>
+          {/* Password */}
           <div className="mb-4">
             <input
               className="w-full pl-4 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 transition"
@@ -53,6 +67,7 @@ const SignUp = () => (
               autoComplete="new-password"
             />
           </div>
+          {/* Email Opt-in */}
           <div className="flex items-start mb-6">
             <input
               type="checkbox"
