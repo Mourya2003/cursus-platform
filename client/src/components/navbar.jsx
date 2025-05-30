@@ -37,7 +37,7 @@ const Navbar = () => {
   return (
     <header className="h-16 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 dark:from-gray-900 dark:via-gray-800 dark:to-gray-700 shadow-lg flex items-center px-4 md:px-8 sticky top-0 z-20 transition-all duration-300">
       {/* Logo / Title */}
-      <h1 className="text-2xl font-extrabold text-white dark:text-yellow-300 tracking-wide flex-1 animate-fade-in">
+      <h1 className="text-4xl font-extrabold text-white dark:text-yellow-300 tracking-wide flex-1 animate-fade-in">
         Cursus Platform
       </h1>
 
