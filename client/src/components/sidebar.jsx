@@ -1,7 +1,7 @@
 import { NavLink } from "react-router-dom";
 
 const Sidebar = () => (
-  <aside className="h-screen w-56 bg-gray-900 text-white flex flex-col py-4">
+  <aside className="fixed h-screen w-56 bg-gray-900 text-white flex flex-col py-4">
     <nav className="flex-1">
       <ul className="space-y-2">
         <li>
