@@ -1,5 +1,5 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+// import React from "react";
+// import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 // import AboutUs from "../pages/AboutUs.jsx";
 // import BlogSingleView from "../pages/BlogSingleView.jsx";
 // import CertificationCenter from "../pages/CertificationCenter.jsx";
@@ -43,6 +43,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 // import SearchResults from "../pages/searchResult.jsx";
 // import Setting from '../pages/Setting.jsx';
 // import ShoppingCart from '../pages/ShoppingCart.jsx';
+
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from '../pages/SignIn.jsx';
 // import SignUpSteps from '../pages/SignUpSteps.jsx';
 import SignUp from '../pages/SignUp.jsx';
@@ -50,59 +53,80 @@ import StudentDashboard from "../pages/StudentDashboard.jsx";
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import ProtectedRoute from '../utils/ProtectedRoute.jsx';
 import PublicRoute from '../utils/PublicRoute.jsx';
+import Navbar from "../components/navbar.jsx"; 
 // // import '../styles/signin.css';
 // // ...import other pages...
 // // import React component corresponding to help.html
 
-// // ...import other pages
 
 
-const AppRoutes = () => (
-  <BrowserRouter>
-    <Routes>
-     
-      <Route path="/sign_in" element={<SignIn />} />
-      
-      <Route path="/sign_up" element={<SignUp />} />
-      
-      <Route
-          path="/dashboard"
+
+
+const AppRoutes = () => {
+  // This state is used to force re-render after login/logout
+  const [authChanged, setAuthChanged] = useState(false);
+
+  // Handler to be passed to SignIn/SignUp to trigger re-render after login
+  const handleAuthChange = () => setAuthChanged((prev) => !prev);
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Default route: redirect to dashboard if logged in, else to sign in */}
+        <Route
+          path="/"
           element={
-            <DashboardLayout>
-              <StudentDashboard />
-            </DashboardLayout>
+            <ProtectedRoute>
+              <Navigate to="/dashboard" replace />
+            </ProtectedRoute>
           }
         />
-         {/* Default route redirects to login */}
-      {/* <Route path="/" element={<Navigate to="/sign_in" replace />} /> */}
-
-      {/* Public routes (only for NOT logged-in users)
-      // <Route path="/sign_in" element={
-      //   <PublicRoute>
-      //     <SignIn />
-      //   </PublicRoute>
-      // } /> */}
-      {/* <Route path="/sign_up" element={
-        <PublicRoute>
-          <SignUp />
-        </PublicRoute>
-      } /> */}
-
-      {/* Protected route (only for logged-in users) */}
-      {/* <Route path="/dashboard" element={
-        <ProtectedRoute>
-          <DashboardLayout>
-            <StudentDashboard />
-          </DashboardLayout>
-        </ProtectedRoute>
-      } /> */}
-      
-      {/* Add other routes here */}
-      {/* Example: <Route path="/contact" element={<Contact />} /> */}
-     
-    </Routes>
-  </BrowserRouter>
-);
+        {/* Sign In Route */}
+        <Route
+          path="/sign_in"
+          element={
+            <PublicRoute>
+              <SignIn onLogin={handleAuthChange} />
+            </PublicRoute>
+          }
+        />
+        {/* Sign Up Route */}
+        <Route
+          path="/sign_up"
+          element={
+            <PublicRoute>
+              <SignUp onSignUp={handleAuthChange} />
+            </PublicRoute>
+          }
+        />
+        {/* Dashboard Route (protected) */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <StudentDashboard />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        {/* Add more routes as needed, e.g.:
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        */}
+        {/* 404 fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
 
 export default AppRoutes;
+
 

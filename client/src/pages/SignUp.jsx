@@ -51,7 +51,7 @@ const SignUp = () => {
       }
 
       // On success, navigate to login or dashboard
-      navigate("/sign_in"); // Or "/dashboard" if you want
+      // navigate("/sign_in"); // Or "/dashboard" if you want
     } catch (err) {
       setError("Network error. Please try again.");
     } finally {
