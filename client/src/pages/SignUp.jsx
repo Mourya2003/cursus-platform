@@ -1,9 +1,8 @@
 
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // For navigation after signup
 import logo from "../assets/logo.svg";
 
-const SignUp = () => {
+const SignUp = ({ onSignUp }) => {
   const [form, setForm] = useState({
     username: "",
     email: "",
@@ -13,7 +12,6 @@ const SignUp = () => {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
 
   // Handle input changes
   const handleChange = (e) => {
@@ -50,8 +48,9 @@ const SignUp = () => {
         return;
       }
 
-      // On success, navigate to login or dashboard
-      // navigate("/sign_in"); // Or "/dashboard" if you want
+      // On success, notify parent to trigger navigation
+      if (onSignUp) onSignUp();
+
     } catch (err) {
       setError("Network error. Please try again.");
     } finally {

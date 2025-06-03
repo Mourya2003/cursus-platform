@@ -53,7 +53,7 @@ import StudentDashboard from "../pages/StudentDashboard.jsx";
 import DashboardLayout from '../components/DashboardLayout.jsx';
 import ProtectedRoute from '../utils/ProtectedRoute.jsx';
 import PublicRoute from '../utils/PublicRoute.jsx';
-import Navbar from "../components/navbar.jsx"; 
+// import Navbar from "../components/navbar.jsx"; 
 // // import '../styles/signin.css';
 // // ...import other pages...
 // // import React component corresponding to help.html
@@ -65,14 +65,14 @@ import Navbar from "../components/navbar.jsx";
 const AppRoutes = () => {
   // This state is used to force re-render after login/logout
   const [authChanged, setAuthChanged] = useState(false);
-
+  const [signedUp, setSignedUp] = useState(false); 
   // Handler to be passed to SignIn/SignUp to trigger re-render after login
   const handleAuthChange = () => setAuthChanged((prev) => !prev);
-
+   const handleSignUp = () => setSignedUp(true); // <-- NEW
+   
   return (
     <BrowserRouter>
       <Routes>
-        {/* Default route: redirect to dashboard if logged in, else to sign in */}
         <Route
           path="/"
           element={
@@ -81,7 +81,6 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        {/* Sign In Route */}
         <Route
           path="/sign_in"
           element={
@@ -90,16 +89,18 @@ const AppRoutes = () => {
             </PublicRoute>
           }
         />
-        {/* Sign Up Route */}
         <Route
           path="/sign_up"
           element={
-            <PublicRoute>
-              <SignUp onSignUp={handleAuthChange} />
-            </PublicRoute>
+            signedUp ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <PublicRoute>
+                <SignUp onSignUp={handleSignUp} />
+              </PublicRoute>
+            )
           }
         />
-        {/* Dashboard Route (protected) */}
         <Route
           path="/dashboard"
           element={
@@ -110,23 +111,12 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        {/* Add more routes as needed, e.g.:
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        */}
-        {/* 404 fallback */}
+        {/* ...other routes... */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   );
 };
-
 export default AppRoutes;
 
 
