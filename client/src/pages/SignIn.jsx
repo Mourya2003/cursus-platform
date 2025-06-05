@@ -4,10 +4,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import logo from "../assets/logo.svg";
 import onlinecourse from "../assets/dashboard/online-course.svg";
+import Loader from "../components/Loader.jsx"; // Import the loader
 
 const SignIn = ({ onLogin }) => {
   const [form, setForm] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
+  const [showLoader, setShowLoader] = useState(false); // NEW
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,14 +46,29 @@ const SignIn = ({ onLogin }) => {
 
       toast.success("Signed in successfully!");
 
-      if (onLogin) onLogin();
+      // Show fullscreen loader after login
+      setShowLoader(true);
+      setLoading(false);
+
+      setTimeout(() => {
+        if (onLogin) onLogin();
+        setShowLoader(false);
+      }, 1000);
 
     } catch (err) {
       toast.error("Network error. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
+
+  // Show fullscreen loader after login
+  if (showLoader) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <Loader />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 via-indigo-100 to-pink-100 py-8 px-4">
@@ -140,11 +157,18 @@ const SignIn = ({ onLogin }) => {
               </label>
             </div>
             <button
-              className="w-full bg-gradient-to-r from-indigo-500 to-pink-400 hover:from-pink-500 hover:to-indigo-600 text-white font-bold py-2 rounded-lg shadow transition mb-4"
+              className="w-full bg-gradient-to-r from-indigo-500 to-pink-400 hover:from-pink-500 hover:to-indigo-600 text-white font-bold py-2 rounded-lg shadow transition mb-4 flex items-center justify-center"
               type="submit"
               disabled={loading}
             >
-              {loading ? "Signing In..." : "Sign In"}
+              {loading ? (
+                <>
+                  <Loader />
+                  <span className="ml-2">Signing In...</span>
+                </>
+              ) : (
+                "Sign In"
+              )}
             </button>
           </form>
           <p className="text-center text-gray-500 text-sm mb-2">
