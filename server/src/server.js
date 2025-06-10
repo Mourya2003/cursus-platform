@@ -4,7 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const Course = require('./models/course.model'); // Import Course model correctly
 const User = require('./models/user.model');     // Import User model
-const jwt = require('jsonwebtoken');             // Import jsonwebtoken
+const jwt = require('jsonwebtoken');        // Import jsonwebtoken
 
 // Load environment variables from .env file
 dotenv.config();
@@ -241,19 +241,5 @@ const PORT = process.env.PORT || 5000;
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-});
+});// Note: Routes and other logic will be added later
 
-// Note: Routes and other logic will be added later
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Serve static files from the React app
-app.use(express.static(path.join(__dirname, '../client/dist')));
-
-// Handle all other routes and redirect to React's index.html
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-});
