@@ -70,3 +70,4 @@ const Navbar = ({ onAuthChange }) => {
 };
 
 export default Navbar;
+
