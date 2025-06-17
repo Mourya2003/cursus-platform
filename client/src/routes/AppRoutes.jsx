@@ -80,6 +80,7 @@ import DashboardLayout from "../components/DashboardLayout.jsx";
 import ProtectedRoute from "../utils/ProtectedRoute.jsx";
 import PublicRoute from "../utils/PublicRoute.jsx";
 import EnrollPage from "../pages/EnrollPage.jsx";
+import Profile from '../pages/Profile';
 
 const AppRoutes = () => {
   const [authChanged, setAuthChanged] = useState(false);
@@ -138,6 +139,7 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/profile" element={<Profile />} />
         {/* ...other routes... */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
@@ -145,5 +147,6 @@ const AppRoutes = () => {
   );
 };
 export default AppRoutes;
+
 
 
