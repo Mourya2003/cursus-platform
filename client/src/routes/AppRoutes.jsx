@@ -81,6 +81,7 @@ import ProtectedRoute from "../utils/ProtectedRoute.jsx";
 import PublicRoute from "../utils/PublicRoute.jsx";
 import EnrollPage from "../pages/EnrollPage.jsx";
 import Profile from '../pages/Profile';
+import CourseDetailsPage from '../pages/CourseDetailView.jsx'; // Assuming you have a CourseDetailsPage component
 
 const AppRoutes = () => {
   const [authChanged, setAuthChanged] = useState(false);
@@ -135,6 +136,17 @@ const AppRoutes = () => {
             <ProtectedRoute>
               <DashboardLayout>
                 <EnrollPage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        
+        <Route
+          path="/courses/:id"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CourseDetailsPage />
               </DashboardLayout>
             </ProtectedRoute>
           }
