@@ -32,6 +32,8 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+
+
 // --- Pre-save hook for password hashing ---
 // This middleware runs *before* a user document is saved to the database
 userSchema.pre('save', async function(next) {
@@ -52,6 +54,7 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
+
 
 const User = mongoose.model('User', userSchema);
 
