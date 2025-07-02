@@ -1,8 +1,8 @@
-
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import WelcomeBanner from '../components/WelcomeBanner.jsx';
 import CourseList from '../components/CourseList.jsx';
 import UpcomingClasses from '../components/UpcomingClasses.jsx';
+import CourseCategoryFilter from '../components/CourseCategoryFilter.jsx'; // ✅ Import filter
 import { isLoggedIn } from '../utils/auth.js';
 import { useEnrolledCourses } from '../components/EnrolledCoursesContext';
 
@@ -25,8 +25,18 @@ const StudentDashboard = () => {
   }
 
   const user = JSON.parse(localStorage.getItem('user'));
-  const studentName = user?.username || "waris";
+  const studentName = user?.username || "Student";
   const { enrolledCourses } = useEnrolledCourses();
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Extract unique categories from enrolledCourses
+  const categories = Array.from(new Set(enrolledCourses.map((course) => course.category)));
+
+  // Filtered courses by category
+  const filteredCourses = useMemo(() => {
+    if (selectedCategory === 'all') return enrolledCourses;
+    return enrolledCourses.filter(course => course.category === selectedCategory);
+  }, [selectedCategory, enrolledCourses]);
 
   const classes = [
     {
@@ -121,9 +131,19 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="max-w-3xl mx-auto flex flex-col gap-6">
+      <div className="max-w-6xl mx-auto flex flex-col gap-6">
         <WelcomeBanner studentName={studentName} />
-        <CourseList courses={enrolledCourses} />
+        
+        {/* Filter UI */}
+        {categories.length > 1 && (
+          <CourseCategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
+        )}
+
+        <CourseList courses={filteredCourses} />
         <UpcomingClasses classes={classes} />
       </div>
     </div>
