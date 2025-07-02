@@ -1,8 +1,9 @@
-import React from 'react';
-import WelcomeBanner from '../components/WelcomeBanner.jsx';
-import AddCourses from '../components/AddCourses.jsx';
-import { useEnrolledCourses } from '../components/EnrolledCoursesContext';
-import { isLoggedIn } from '../utils/auth.js';
+import React, { useState, useMemo } from "react";
+import WelcomeBanner from "../components/WelcomeBanner.jsx";
+import AddCourses from "../components/AddCourses.jsx";
+import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
+import { isLoggedIn } from "../utils/auth.js";
+import CourseCategoryFilter from "../components/CourseCategoryFilter.jsx";
 
 const InstructorDashboard = () => {
   if (!isLoggedIn()) {
@@ -15,42 +16,70 @@ const InstructorDashboard = () => {
     );
   }
 
-  const user = JSON.parse(localStorage.getItem('user'));
-  const studentName = user?.username || "Instructor";
+  const user = JSON.parse(localStorage.getItem("user"));
+  const instructorName = user?.username || "Instructor";
   const { enrolledCourses, remove } = useEnrolledCourses();
+  const [selectedCategory, setSelectedCategory] = useState("all");
+
+  // Extract unique categories
+  const categories = Array.from(
+    new Set(enrolledCourses.map((course) => course.category))
+  );
+
+  // Filter courses
+  const filteredCourses = useMemo(() => {
+    if (selectedCategory === "all") return enrolledCourses;
+    return enrolledCourses.filter((c) => c.category === selectedCategory);
+  }, [selectedCategory, enrolledCourses]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-4 md:p-8">
-      <div className="max-w-4xl mx-auto flex flex-col gap-6">
-        <WelcomeBanner studentName={studentName} />
+      <div className="max-w-6xl mx-auto flex flex-col gap-6">
+        <WelcomeBanner studentName={instructorName} />
         <AddCourses />
 
         <div className="bg-white shadow-md rounded p-4">
           <h2 className="text-xl font-semibold mb-4">Added Courses</h2>
-          {enrolledCourses.length === 0 ? (
-            <p className="text-gray-500">No courses added yet.</p>
+
+          {/* Category Filter */}
+          {categories.length > 1 && (
+            <CourseCategoryFilter
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onCategoryChange={setSelectedCategory}
+            />
+          )}
+
+          {filteredCourses.length === 0 ? (
+            <p className="text-gray-500">No courses found for selected category.</p>
           ) : (
-            <ul className="space-y-3">
-              {enrolledCourses.map((course) => (
-                <li
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {filteredCourses.map((course) => (
+                <div
                   key={course.id}
-                  className="flex items-center justify-between bg-gray-50 p-3 rounded border border-gray-200"
+                  className="bg-white border border-gray-200 rounded-lg shadow hover:shadow-lg transition-transform transform hover:scale-105 p-4 flex flex-col justify-between"
                 >
                   <div>
-                    <h3 className="font-bold">{course.title}</h3>
+                    <h3 className="text-lg font-bold text-gray-800">{course.title}</h3>
+                    <p className="text-sm text-gray-600 mt-1">
+                      Instructor: {course.instructor}
+                    </p>
                     <p className="text-sm text-gray-600">
-                      Instructor: {course.instructor} | Category: {course.category} | ₹{course.price}
+                      Category: {course.category}
                     </p>
                   </div>
-                  <button
-                    onClick={() => remove(course.id)}
-                    className="text-red-600 hover:text-red-800 text-sm font-medium"
-                  >
-                    Remove
-                  </button>
-                </li>
+                  <div className="flex justify-between items-center mt-4">
+                    <p className="text-indigo-600 font-semibold">₹{course.price}</p>
+                    <button
+                      onClick={() => remove(course.id)}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
