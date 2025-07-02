@@ -1,7 +1,6 @@
-
-
 import React, { useState } from "react";
 import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
+import PayNowButton from "../components/PayNowButton.jsx"; // ✅ Razorpay button
 
 import img1 from '../assets/courses/img-1.jpg';
 import img2 from '../assets/courses/img-2.jpg';
@@ -12,7 +11,6 @@ import img6 from '../assets/courses/img-6.jpg';
 import img7 from '../assets/courses/img-7.jpg';
 
 const courses = [
-  // ...your courses array as before...
   {
     id: 1,
     image: img1,
@@ -107,14 +105,8 @@ const courses = [
 ];
 
 const EnrollPage = () => {
-  const { enrolledCourses, enroll, remove } = useEnrolledCourses();
+  const { enrolledCourses, remove } = useEnrolledCourses(); // No need for enroll() anymore here
   const [clickedId, setClickedId] = useState(null);
-
-  const handleEnroll = (course) => {
-    setClickedId(course.id);
-    enroll(course);
-    setTimeout(() => setClickedId(null), 400);
-  };
 
   const handleRemove = (id) => {
     setClickedId(id);
@@ -183,15 +175,12 @@ const EnrollPage = () => {
                       Remove
                     </button>
                   ) : (
-                    <button
-                      className={`px-4 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-blue-700 text-white font-bold shadow transition-all duration-300
-                        hover:scale-105 hover:from-blue-600 hover:to-blue-800 active:scale-95
-                        ${isClicked ? "animate-ping-once" : ""}
-                      `}
-                      onClick={() => handleEnroll(course)}
-                    >
-                      Enroll
-                    </button>
+                    <PayNowButton
+                      amount={course.price}
+                      courseId={course.id}
+                      courseTitle={course.title}
+                      thumbnailUrl={course.image}
+                    />
                   )}
                 </div>
               </div>
@@ -199,7 +188,6 @@ const EnrollPage = () => {
           );
         })}
       </div>
-      {/* Custom animation for button click */}
       <style>
         {`
           @keyframes ping-once {

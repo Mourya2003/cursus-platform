@@ -86,6 +86,9 @@ import CourseDetailsPage from "../pages/CourseDetailView.jsx";
 import MyLearning from "../pages/MyLearning.jsx";
 import MyPayments from "../pages/MyPayments.jsx";
 import { getUserRole } from "../utils/auth"; // ✅ NEW
+import CoursePayment from "../pages/CoursePayment";
+
+
 
 const AppRoutes = () => {
   const [authChanged, setAuthChanged] = useState(false);
@@ -201,6 +204,16 @@ const AppRoutes = () => {
               </DashboardLayout>
             </ProtectedRoute>
           }
+        />
+        <Route
+          path="/pay"
+          element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <CoursePayment />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

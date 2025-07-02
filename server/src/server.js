@@ -15,6 +15,12 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edtech_pl
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('DB error:', err));
 
+//Path for Payment 
+const razorpayRoutes = require("./routes/razorpay");
+app.use("/api/payment", razorpayRoutes);
+app.use("/api/payment", require("./routes/razorpay"));
+
+
 // Healthcheck
 app.get('/healthcheck', (req, res) => {
   const dbStatus = mongoose.connection.readyState;
