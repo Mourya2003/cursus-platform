@@ -145,7 +145,7 @@
 // // export default Sidebar;
 
 import { NavLink } from "react-router-dom";
-import CourseFilter from "./CourseFilter";
+// import CourseFilter from "./CourseFilter";
 
 const Sidebar = () => (
   <aside className="fixed h-screen w-64 bg-gray-900 text-white flex flex-col py-4 z-40">
@@ -214,9 +214,9 @@ const Sidebar = () => (
       </ul>
     </nav>
     {/* Filter Panel */}
-    <div className="px-4 py-4 border-t border-gray-800">
+    {/* <div className="px-4 py-4 border-t border-gray-800">
       <CourseFilter />
-    </div>
+    </div> */}
     <div className="px-6 mt-auto">
       <span className="text-xs text-gray-400">© 2025 Cursus</span>
     </div>
