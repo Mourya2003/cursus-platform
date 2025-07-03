@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.7",
+    "axios": "^1.10.0",
     "framer-motion": "^12.12.2",
     "lodash.debounce": "^4.0.8",
     "react": "^19.1.0",

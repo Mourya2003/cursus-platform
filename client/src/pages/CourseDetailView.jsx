@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
 import Footer from "../components/Footer"
+import InstructorProfilePage from "../pages/instructorProfileView"; // or correct path
+
 
 // Import images
 import img1 from '../assets/courses/img-1.jpg';
@@ -596,7 +598,11 @@ const CourseDetailPage = () => {
                       {section.section}
                     </div>
                     {section.lessons.map((lesson, lIdx) => (
-                      <div key={lIdx} className="flex justify-between items-center border-b last:border-b-0 py-3 px-2">
+                      <div
+                        key={lIdx}
+                        className="flex justify-between items-center border-b last:border-b-0 py-3 px-2 hover:bg-blue-50 cursor-pointer"
+                        onClick={() => alert(`Opening lesson: ${lesson.title}`)}
+                      >
                         <div className="flex items-center gap-3">
                           <svg className="w-4 h-4 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" /><path d="M14 6a2 2 0 012-2h2a2 2 0 012 2v8a2 2 0 01-2 2h-2a2 2 0 01-2-2V6z" /></svg>
                           <span className="font-medium">{lesson.title}</span>
@@ -639,7 +645,11 @@ const CourseDetailPage = () => {
           {activeTab === "instructor" && (
             <div>
               <h3 className="text-xl font-bold mb-4 text-blue-900">Instructor</h3>
-              <div className="flex items-center gap-4">
+              <div
+                className="flex items-center gap-4 cursor-pointer hover:bg-blue-50 p-3 rounded-lg"
+               onClick={() => navigate(`/instructor/${course.instructor.replace(/\s+/g, '-')}`)}
+
+              >
                 <img src={course.instructorImg} alt={course.instructor} className="w-16 h-16 rounded-full object-cover" />
                 <div>
                   <div className="text-lg font-bold text-blue-900">{course.instructor}</div>
@@ -649,14 +659,17 @@ const CourseDetailPage = () => {
               </div>
             </div>
           )}
-
           {/* Reviews */}
-          {activeTab === "reviews" && (
+           {activeTab === "reviews" && (
             <div>
               <h3 className="text-xl font-bold mb-4 text-blue-900">Student Feedback</h3>
               <div className="space-y-4">
                 {reviews.map((rev, idx) => (
-                  <div key={idx} className="flex items-start gap-4 bg-gray-50 rounded-lg p-4">
+                  <div
+                    key={idx}
+                    className="flex items-start gap-4 bg-gray-50 rounded-lg p-4 hover:bg-blue-50 cursor-pointer"
+                    onClick={() => navigate(`/student/${rev.user.replace(/\s+/g, '-')}`)}
+                  >
                     <img src={rev.img} alt={rev.user} className="w-12 h-12 rounded-full object-cover" />
                     <div>
                       <div className="flex items-center gap-2">
@@ -679,7 +692,11 @@ const CourseDetailPage = () => {
             <div>
               <h3 className="text-xl font-bold mb-4 text-blue-900">Frequently Asked Questions</h3>
               <div className="space-y-4">
-                {course.faqs.map((faq, idx) => (
+                {[...course.faqs,
+                  { question: "Will I get a certificate?", answer: "Yes, upon successful completion, you'll receive a certificate." },
+                  { question: "Can I access it on mobile?", answer: "Yes, the course is fully mobile-compatible." },
+                  { question: "Are there subtitles?", answer: "Yes, all lectures include subtitles." },
+                ].map((faq, idx) => (
                   <div key={idx} className="border-b pb-4">
                     <div className="font-bold text-gray-800">{faq.question}</div>
                     <div className="text-gray-600 mt-1">{faq.answer}</div>
@@ -694,5 +711,4 @@ const CourseDetailPage = () => {
     </div>
   );
 };
-
 export default CourseDetailPage;

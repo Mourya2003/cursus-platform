@@ -83,7 +83,14 @@ import PublicRoute from "../utils/PublicRoute.jsx";
 import EnrollPage from "../pages/EnrollPage.jsx";
 import Profile from "../pages/Profile.jsx";
 import CourseDetailsPage from "../pages/CourseDetailView.jsx";
+import MyLearning from "../pages/MyLearning.jsx";
+import MyPayments from "../pages/MyPayments.jsx";
 import { getUserRole } from "../utils/auth"; // ✅ NEW
+import CoursePayment from "../pages/CoursePayment";
+import CourseSearchPage from "../pages/searchResult.jsx";
+import  InstructorProfilePage  from "../pages/instructorProfileView.jsx"; // ✅ NEW
+
+
 
 const AppRoutes = () => {
   const [authChanged, setAuthChanged] = useState(false);
@@ -180,6 +187,58 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/dashboard/my-learning"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <MyLearning />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/dashboard/my-payments"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <MyPayments />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pay"
+          element={
+              <ProtectedRoute>
+                <DashboardLayout>
+                  <CoursePayment />
+                </DashboardLayout>
+              </ProtectedRoute>
+            }
+        />
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CourseSearchPage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+      <Route
+          path="/instructor/:id"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <InstructorProfilePage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Add more routes as needed */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
