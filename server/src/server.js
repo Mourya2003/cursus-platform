@@ -1,5 +1,5 @@
 // server/src/server.js
-
+//This is the backend server
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
