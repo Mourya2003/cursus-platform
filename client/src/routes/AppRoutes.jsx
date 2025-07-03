@@ -87,6 +87,8 @@ import MyLearning from "../pages/MyLearning.jsx";
 import MyPayments from "../pages/MyPayments.jsx";
 import { getUserRole } from "../utils/auth"; // ✅ NEW
 import CoursePayment from "../pages/CoursePayment";
+import CourseSearchPage from "../pages/searchResult.jsx";
+import  InstructorProfilePage  from "../pages/instructorProfileView.jsx"; // ✅ NEW
 
 
 
@@ -215,6 +217,28 @@ const AppRoutes = () => {
               </ProtectedRoute>
             }
         />
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <CourseSearchPage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+  path="/instructor/:name"
+  element={
+    <ProtectedRoute>
+      <DashboardLayout>
+        <InstructorProfilePage />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
+
+        {/* Add more routes as needed */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
