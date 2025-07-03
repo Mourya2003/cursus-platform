@@ -135,7 +135,7 @@ const StudentDashboard = () => {
         <WelcomeBanner studentName={studentName} />
         
         {/* Filter UI */}
-        {categories.length > 1 && (
+        {categories.length > 0 && (
           <CourseCategoryFilter
             categories={categories}
             selectedCategory={selectedCategory}
