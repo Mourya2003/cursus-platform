@@ -6,6 +6,8 @@ import img15 from "../assets/left-imgs/img-15.jpg";
 import img1 from "../assets/courses/img-1.jpg";
 import img2 from "../assets/courses/img-11.jpg";
 import img3 from "../assets/left-imgs/img-3.jpg";
+import img4 from "../assets/courses/img-6.jpg";
+import img5 from "../assets/courses/img-13.jpg";
 
 const InstructorProfilePage = () => {
   const { id } = useParams();
@@ -52,6 +54,28 @@ const InstructorProfilePage = () => {
         views: "5M",
         date: "10 days ago",
         category: "Web Development | JavaScript",
+      },
+      {
+        id: 3,
+        title: "React - The Complete Guide",
+        image: img4,
+        rating: 4.8,
+        duration: "30 hours",
+        price: "$15",
+        views: "2M",
+        date: "20 days ago",
+        category: "Web Development | React",
+      },
+      {
+        id: 4,
+        title: "Node.js for Beginners",
+        image: img5,
+        rating: 4.6,
+        duration: "20 hours",
+        price: "$8",
+        views: "500k",
+        date: "5 days ago",
+        category: "Web Development | Node.js",
       }
     ];
 
