@@ -2,8 +2,7 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
-const Payment = require("../models/Payment");
-
+const Payment = require("../models/Payment"); // your mongoose model
 const router = express.Router();
 
 const razorpay = new Razorpay({
@@ -11,13 +10,13 @@ const razorpay = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// 📌 Create Razorpay Order
+// 📌 1. Create Razorpay Order
 router.post("/create-order", async (req, res) => {
   const { amount, currency = "INR", receipt } = req.body;
 
   try {
     const order = await razorpay.orders.create({
-      amount: amount * 100,
+      amount: amount * 100, // amount in paisa
       currency,
       receipt,
     });
@@ -28,7 +27,7 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
-// ✅ Verify Signature + Save Payment
+// ✅ 2. Verify Razorpay Signature and Save Payment to DB
 router.post("/verify", async (req, res) => {
   const {
     razorpay_order_id,
@@ -41,6 +40,8 @@ router.post("/verify", async (req, res) => {
   } = req.body;
 
   const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ success: false, message: "Unauthorized" });
+
   let userId;
 
   try {
@@ -51,6 +52,7 @@ router.post("/verify", async (req, res) => {
   }
 
   const body = razorpay_order_id + "|" + razorpay_payment_id;
+
   const expectedSignature = crypto
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
     .update(body)
@@ -75,16 +77,14 @@ router.post("/verify", async (req, res) => {
 
     await payment.save();
 
-    return res.status(200).json({ success: true, message: "Payment verified and saved" });
+    res.status(200).json({ success: true, message: "Payment verified and saved" });
   } catch (err) {
     console.error("Saving payment failed:", err);
-    return res.status(500).json({ success: false, message: "Error saving payment" });
+    res.status(500).json({ success: false, message: "Error saving payment" });
   }
 });
 
-const Payment = require("../models/Payment"); // (if not already imported)
-
-// GET user's payment history
+// 🔍 3. Get full payment history (for MyPayments page)
 router.get("/history", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
@@ -101,5 +101,25 @@ router.get("/history", async (req, res) => {
   }
 });
 
+// 📘 4. Get enrolled courses (only successful payments)
+router.get("/enrolled", async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decoded.id;
+
+    const enrolledCourses = await Payment.find({
+      userId,
+      status: "Success",
+    });
+
+    res.status(200).json({ success: true, courses: enrolledCourses });
+  } catch (err) {
+    console.error("Fetch enrolled courses error:", err);
+    res.status(500).json({ error: "Failed to fetch enrolled courses" });
+  }
+});
 
 module.exports = router;
