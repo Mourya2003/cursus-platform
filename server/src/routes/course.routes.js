@@ -25,7 +25,7 @@ router.post('/', async (req, res) => {
         const { courseId, title, description, price, instructor, category } = req.body;
 
         // Basic validation
-        if (!courseId || !title || !!description || !price || !instructor || !category) {
+        if (!courseId || !title || !description || !price || !instructor || !category) {
             return res.status(400).json({ message: 'All course fields are required.' });
         }
 

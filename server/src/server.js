@@ -15,6 +15,7 @@ const razorpayRoutes = require("./routes/razorpay"); // Assuming this is correct
 // --- END Import Route Files ---
 
 dotenv.config();
+console.log('Loaded JWT_SECRET:', process.env.JWT_SECRET ? 'YES (length ' + process.env.JWT_SECRET.length + ')' : 'NO');
 const app = express();
 app.use(cors());
 app.use(express.json());
