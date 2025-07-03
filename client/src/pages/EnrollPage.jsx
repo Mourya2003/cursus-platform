@@ -1,16 +1,15 @@
 import React, { useState } from "react";
-import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
-import PayNowButton from "../components/PayNowButton.jsx"; // ✅ Razorpay button
 import { useNavigate } from "react-router-dom";
+import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
+import PayNowButton from "../components/PayNowButton.jsx";
 
-
-import img1 from '../assets/courses/img-1.jpg';
-import img2 from '../assets/courses/img-2.jpg';
-import img3 from '../assets/courses/img-3.jpg';
-import img4 from '../assets/courses/img-4.jpg';
-import img5 from '../assets/courses/img-5.jpg';
-import img6 from '../assets/courses/img-6.jpg';
-import img7 from '../assets/courses/img-7.jpg';
+import img1 from "../assets/courses/img-1.jpg";
+import img2 from "../assets/courses/img-2.jpg";
+import img3 from "../assets/courses/img-3.jpg";
+import img4 from "../assets/courses/img-4.jpg";
+import img5 from "../assets/courses/img-5.jpg";
+import img6 from "../assets/courses/img-6.jpg";
+import img7 from "../assets/courses/img-7.jpg";
 
 const courses = [
   {
@@ -106,108 +105,197 @@ const courses = [
   },
 ];
 
+const getUniqueCategories = (courses) => {
+  const catSet = new Set();
+  courses.forEach((c) =>
+    c.category.split("|").forEach((cat) => catSet.add(cat.trim()))
+  );
+  return Array.from(catSet);
+};
+
 const EnrollPage = () => {
   const navigate = useNavigate();
-  const { enrolledCourses, remove } = useEnrolledCourses(); // No need for enroll() anymore here
-  const [clickedId, setClickedId] = useState(null);
+  const { enrolledCourses, enroll, remove } = useEnrolledCourses();
 
-  const handleRemove = (id) => {
-    setClickedId(id);
-    remove(id);
-    setTimeout(() => setClickedId(null), 400);
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [Price, setPrice] = useState("");
+  const [minRating, setMinRating] = useState("");
+  const [filteredCourses, setFilteredCourses] = useState(courses);
+
+  const categories = getUniqueCategories(courses);
+
+  const handleFilter = () => {
+    let filtered = [...courses];
+
+    if (selectedCategory) {
+      filtered = filtered.filter((c) =>
+        c.category
+          .split("|")
+          .map((s) => s.trim())
+          .includes(selectedCategory)
+      );
+    }
+    if (Price) {
+      filtered = filtered.filter((c) => c.price <= Number(Price));
+    }
+    if (minRating) {
+      filtered = filtered.filter((c) => c.rating >= Number(minRating));
+    }
+
+    setFilteredCourses(filtered);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h2 className="text-3xl font-extrabold mb-8 text-center text-blue-800 drop-shadow">
-        Available Courses
+    <div className="max-w-6xl mx-auto px-6 py-10">
+      <h2 className="text-4xl font-extrabold mb-10 text-center text-blue-800 drop-shadow">
+        🎓 Browse Our Courses
       </h2>
-      <div className="flex flex-wrap gap-8 justify-center">
-        {courses.map((course) => {
-          const isEnrolled = enrolledCourses.some((c) => c.id === course.id);
-          const isClicked = clickedId === course.id;
-          return (
-            <div
-               key={course.id}
-               onClick={() => navigate(`/courses/${course.id}`)}
-               className={`min-w-[300px] max-w-[300px] bg-white rounded-2xl shadow-lg flex flex-col
-                   transition-transform duration-300 hover:scale-105 hover:shadow-2xl cursor-pointer
-                    ${isClicked ? "ring-4 ring-green-300 scale-95" : ""}
-           `}
-              style={{ boxShadow: "0 6px 36px 0 rgba(0,0,0,0.07)" }}
-            >
-              <div className="relative w-full h-44 rounded-t-2xl overflow-hidden">
-                <img
-                  src={course.image}
-                  alt={course.title}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
-                />
-                {course.isBestseller && (
-                  <span className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg animate-pulse">
-                    BESTSELLER
+
+      {/* Filter Controls */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <div className="flex flex-col">
+          <label className="font-semibold text-sm mb-1">Category</label>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="border rounded px-3 py-2 shadow-sm focus:outline-none"
+          >
+            <option value="">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex flex-col">
+          <label className="font-semibold text-sm mb-1">Max Price</label>
+          <input
+            type="number"
+            value={Price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="Any"
+            className="border rounded px-3 py-2 shadow-sm"
+          />
+        </div>
+        <div className="flex flex-col">
+          <label className="font-semibold text-sm mb-1">Min Rating</label>
+          <select
+            value={minRating}
+            onChange={(e) => setMinRating(e.target.value)}
+            className="border rounded px-3 py-2 shadow-sm"
+          >
+            <option value="">Any</option>
+            <option value="4.5">4.5+</option>
+            <option value="5.0">5.0</option>
+          </select>
+        </div>
+        <div className="flex items-end">
+          <button
+            onClick={handleFilter}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg shadow"
+          >
+            Apply Filters
+          </button>
+        </div>
+      </div>
+
+      {/* Course Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredCourses.length === 0 ? (
+          <div className="col-span-full text-gray-500 text-center text-lg">
+            No courses found.
+          </div>
+        ) : (
+          filteredCourses.map((course) => {
+            const isEnrolled = enrolledCourses.some((c) => c.id === course.id);
+
+            return (
+              <div
+                key={course.id}
+                onClick={() => navigate(`/courses/${course.id}`)}
+                className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-transform transform hover:scale-105 cursor-pointer"
+              >
+                {/* Image */}
+                <div className="relative h-44">
+                  <img
+                    src={course.image}
+                    alt={course.title}
+                    className="w-full h-full object-cover rounded-t-2xl"
+                  />
+                  {course.isBestseller && (
+                    <span className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-yellow-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-md animate-pulse">
+                      BESTSELLER
+                    </span>
+                  )}
+                  <span className="absolute bottom-3 left-3 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow">
+                    ⭐ {course.rating}
                   </span>
-                )}
-                <span className="absolute bottom-3 left-3 bg-yellow-400 text-white text-xs font-bold px-2 py-1 rounded shadow">
-                  <svg className="w-4 h-4 inline mr-1" fill="currentColor" viewBox="0 0 20 20"><path d="M10 15l-5.878 3.09 1.122-6.545L.488 6.91l6.561-.955L10 0l2.951 5.955 6.561.955-4.756 4.635 1.122 6.545z"/></svg>
-                  {course.rating}
-                </span>
-                <span className="absolute bottom-3 right-3 bg-gray-800 text-white text-xs px-2 py-1 rounded shadow">
-                  {course.duration}
-                </span>
-              </div>
-              <div className="flex-1 flex flex-col justify-between p-4">
-                <div>
-                  <div className="font-semibold text-lg mb-1">{course.title}</div>
-                  <div className="text-xs text-blue-700 mb-2">{course.category}</div>
-                  <div className="text-xs text-gray-500 mb-2 flex gap-2">
-                    <span>{course.views} views</span>
-                    <span>•</span>
-                    <span>{course.date}</span>
-                  </div>
-                  <div className="text-sm text-gray-700">By {course.instructor}</div>
+                  <span className="absolute bottom-3 right-3 bg-gray-900 text-white text-xs px-2 py-1 rounded shadow">
+                    {course.duration}
+                  </span>
                 </div>
-                <div className="flex items-center justify-between mt-4">
-                  <div className="font-bold text-xl text-blue-700">${course.price}</div>
-                  {isEnrolled ? (
-                    <button
-                      className={`px-4 py-2 rounded-lg bg-gradient-to-r from-red-500 to-pink-600 text-white font-bold shadow transition-all duration-300
-                        hover:scale-105 hover:from-red-600 hover:to-pink-700 active:scale-95
-                        ${isClicked ? "animate-ping-once" : ""}
-                      `}
-                      onClick={() => handleRemove(course.id)}
-                    >
-                      Remove
-                    </button>
-                  ) : (
+
+                {/* Details */}
+                <div className="p-4 flex flex-col space-y-2 h-auto">
+                  <div>
+                    <h3 className="text-lg font-semibold mb-1">
+                      {course.title}
+                    </h3>
+                    <p className="text-sm text-blue-700">{course.category}</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      {course.views} • {course.date}
+                    </p>
+                    <p className="text-sm text-gray-600 mt-1">
+                      By {course.instructor}
+                    </p>
+                  </div>
+
+                  {/* Price & Actions */}
+                  <div className="flex justify-between items-center">
+                    <div className="text-xl font-bold text-blue-700">
+                      ${course.price}
+                    </div>
+                    {isEnrolled ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          remove(course.id);
+                        }}
+                        className="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-1 rounded-lg shadow"
+                      >
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          enroll(course);
+                        }}
+                        className="bg-green-500 hover:bg-green-600 text-white text-sm px-4 py-1 rounded-lg shadow"
+                      >
+                        Enroll
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Pay Button */}
+                  <div>
                     <PayNowButton
                       amount={course.price}
                       courseId={course.id}
                       courseTitle={course.title}
                       thumbnailUrl={course.image}
                     />
-                  )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
-      <style>
-        {`
-          @keyframes ping-once {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-            100% { transform: scale(1); }
-          }
-          .animate-ping-once {
-            animation: ping-once 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-        `}
-      </style>
     </div>
   );
 };
 
 export default EnrollPage;
-
-
