@@ -227,16 +227,16 @@ const AppRoutes = () => {
             </ProtectedRoute>
           }
         />
-        <Route
-  path="/instructor/:name"
-  element={
-    <ProtectedRoute>
-      <DashboardLayout>
-        <InstructorProfilePage />
-      </DashboardLayout>
-    </ProtectedRoute>
-  }
-/>
+      <Route
+          path="/instructor/:id"
+          element={
+            <ProtectedRoute>
+              <DashboardLayout>
+                <InstructorProfilePage />
+              </DashboardLayout>
+            </ProtectedRoute>
+          }
+        />
 
         {/* Add more routes as needed */}
         <Route path="*" element={<Navigate to="/" replace />} />
