@@ -1,240 +1,177 @@
-import React from "react";
-import { Link } from "react-router-dom";
+// InstructorProfilePage.jsx
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 
-const InstructorProfileView = () => (
-  <div>
-    {/* Header */}
-    <header className="header clearfix">
-      <button type="button" id="toggleMenu" className="toggle_menu">
-        <i className="uil uil-bars"></i>
-      </button>
-      <button id="collapse_menu" className="collapse_menu">
-        <i className="uil uil-bars collapse_menu--icon"></i>
-        <span className="collapse_menu--label"></span>
-      </button>
-      <div className="main_logo" id="logo">
-        <Link to="/"><img src="/images/logo.svg" alt="" /></Link>
-        <Link to="/"><img className="logo-inverse" src="/images/ct_logo.svg" alt="" /></Link>
+import img15 from "../assets/left-imgs/img-15.jpg";
+import img1 from "../assets/courses/img-1.jpg";
+import img2 from "../assets/courses/img-11.jpg";
+import img3 from "../assets/left-imgs/img-3.jpg";
+import img4 from "../assets/courses/img-6.jpg";
+import img5 from "../assets/courses/img-13.jpg";
+
+const InstructorProfilePage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [tab, setTab] = useState("about");
+
+  // Example data fetch simulation using ID
+  const [instructor, setInstructor] = useState(null);
+  const [courses, setCourses] = useState([]);
+
+  useEffect(() => {
+    // Simulated API fetch with instructor ID
+    const dummyInstructor = {
+      id: id,
+      name: "John Doe",
+      title: "Web Developer",
+      avatar: img15,
+      students: 612000,
+      courseCount: 8,
+      reviews: 115000,
+      subscribers: 452000,
+      bio: `I love building modern web applications and teaching others how to do it too. I specialize in full-stack development and have over 10 years of experience.`,
+    };
+
+    const dummyCourses = [
+      {
+        id: 1,
+        title: "Complete Python Bootcamp",
+        image: img1,
+        rating: 4.5,
+        duration: "25 hours",
+        price: "$10",
+        views: "109k",
+        date: "15 days ago",
+        category: "Web Development | Python",
+      },
+      {
+        id: 2,
+        title: "JavaScript Mastery",
+        image: img2,
+        rating: 4.7,
+        duration: "28 hours",
+        price: "$12",
+        views: "5M",
+        date: "10 days ago",
+        category: "Web Development | JavaScript",
+      },
+      {
+        id: 3,
+        title: "React - The Complete Guide",
+        image: img4,
+        rating: 4.8,
+        duration: "30 hours",
+        price: "$15",
+        views: "2M",
+        date: "20 days ago",
+        category: "Web Development | React",
+      },
+      {
+        id: 4,
+        title: "Node.js for Beginners",
+        image: img5,
+        rating: 4.6,
+        duration: "20 hours",
+        price: "$8",
+        views: "500k",
+        date: "5 days ago",
+        category: "Web Development | Node.js",
+      }
+    ];
+
+    setInstructor(dummyInstructor);
+    setCourses(dummyCourses);
+  }, [id]);
+
+  if (!instructor) return <div className="text-center py-10">Loading profile...</div>;
+
+  return (
+    <div className="min-h-screen bg-gray-100 py-6 px-4">
+      <div className="max-w-5xl mx-auto bg-white p-6 rounded-2xl shadow-md mb-8">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex items-center gap-4">
+            <img src={instructor.avatar} alt={instructor.name} className="w-24 h-24 rounded-full object-cover" />
+            <div>
+              <h2 className="text-2xl font-bold">{instructor.name}</h2>
+              <p className="text-gray-500">{instructor.title}</p>
+              <div className="text-sm text-gray-600 mt-2 space-x-6">
+                <span>📚 Courses: {instructor.courseCount}</span>
+                <span>🎓 Students: {instructor.students.toLocaleString()}</span>
+                <span>⭐ Reviews: {instructor.reviews.toLocaleString()}</span>
+                <span>👥 Subscribers: {instructor.subscribers.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 md:mt-0 flex space-x-4">
+            <button className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Subscribe</button>
+            <button className="px-4 py-2 bg-gray-200 text-gray-800 rounded-xl hover:bg-gray-300">Message</button>
+          </div>
+        </div>
       </div>
-      <div className="top-category">
-        <div className="ui compact menu cate-dpdwn">
-          <div className="ui simple dropdown item">
-            <a href="#" className="option_links p-0" title="categories"><i className="uil uil-apps"></i></a>
-            <div className="menu dropdown_category5">
-              {[
-                "Development", "Business", "Finance & Accounting", "IT & Software", "Office Productivity",
-                "Personal Development", "Design", "Marketing", "Lifestyle", "Photography", "Health & Fitness",
-                "Music", "Teaching & Academics"
-              ].map(cat => (
-                <a href="#" className="item channel_item" key={cat}>{cat}</a>
+
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-4 mb-6">
+        <div className="flex space-x-6 border-b pb-2">
+          <button className={`${tab === "about" ? "border-b-2 border-indigo-600 font-semibold" : "text-gray-500"}`} onClick={() => setTab("about")}>About</button>
+          <button className={`${tab === "courses" ? "border-b-2 border-indigo-600 font-semibold" : "text-gray-500"}`} onClick={() => setTab("courses")}>Courses</button>
+          <button className={`${tab === "discussion" ? "border-b-2 border-indigo-600 font-semibold" : "text-gray-500"}`} onClick={() => setTab("discussion")}>Discussion</button>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto">
+        {tab === "about" && (
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <h3 className="text-xl font-bold mb-4">About Me</h3>
+            <p className="text-gray-700 leading-relaxed">
+              {instructor.bio}
+            </p>
+          </div>
+        )}
+
+        {tab === "courses" && (
+          <div>
+            <h3 className="text-xl font-bold mb-4 text-gray-800">My Courses ({courses.length})</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {courses.map((course) => (
+                <div key={course.id} className="bg-white p-4 rounded-2xl shadow hover:shadow-lg transition cursor-pointer" onClick={() => navigate(`/courses/${course.id}`)}>
+                  <img src={course.image} alt={course.title} className="w-full h-40 object-cover rounded-lg mb-3" />
+                  <h4 className="font-semibold text-lg mb-1">{course.title}</h4>
+                  <p className="text-sm text-gray-500 mb-2">{course.category}</p>
+                  <div className="text-sm text-gray-600 flex justify-between">
+                    <span>{course.duration}</span>
+                    <span>{course.rating} ★</span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-gray-800 font-semibold">{course.price}</p>
+                    <span className="text-xs text-gray-400">{course.views} views</span>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        </div>
-      </div>
-      <div className="search120">
-        <div className="ui search">
-          <div className="ui left icon input swdh10">
-            <input className="prompt srch10" type="text" placeholder="Search for Tuts Videos, Tutors, Tests and more.." />
-            <i className="uil uil-search-alt icon icon1"></i>
-          </div>
-        </div>
-      </div>
-      <div className="header_right">
-        <ul>
-          <li>
-            <Link to="/create_new_course" className="upload_btn" title="Create New Course">Create New Course</Link>
-          </li>
-          <li>
-            <Link to="/shopping_cart" className="option_links" title="cart">
-              <i className="uil uil-shopping-cart-alt"></i>
-              <span className="noti_count">2</span>
-            </Link>
-          </li>
-          {/* Messages, Notifications, Account dropdowns can be added here */}
-        </ul>
-      </div>
-    </header>
+        )}
 
-    {/* Sidebar Navigation */}
-    <nav className="vertical_nav">
-      <div className="left_section menu_left" id="js-menu">
-        <div className="left_section">
-          <ul>
-            <li className="menu--item">
-              <Link to="/" className="menu--link active" title="Home">
-                <i className="uil uil-home-alt menu--icon"></i>
-                <span className="menu--label">Home</span>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/live_streams" className="menu--link" title="Live Streams">
-                <i className="uil uil-kayak menu--icon"></i>
-                <span className="menu--label">Live Streams</span>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/explore" className="menu--link" title="Explore">
-                <i className="uil uil-search menu--icon"></i>
-                <span className="menu--label">Explore</span>
-              </Link>
-            </li>
-            {/* Categories, Tests, Pages, etc. */}
-            <li className="menu--item">
-              <Link to="/saved_courses" className="menu--link" title="Saved Courses">
-                <i className="uil uil-heart-alt menu--icon"></i>
-                <span className="menu--label">Saved Courses</span>
-              </Link>
-            </li>
-            {/* ...other menu items */}
-          </ul>
-        </div>
-        <div className="left_section">
-          <h6 className="left_title">SUBSCRIPTIONS</h6>
-          <ul>
-            <li className="menu--item">
-              <Link to="/instructor_profile_view" className="menu--link user_img">
-                <img src="/images/left-imgs/img-1.jpg" alt="" />
-                Rock Smith
-                <div className="alrt_dot"></div>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/instructor_profile_view" className="menu--link user_img">
-                <img src="/images/left-imgs/img-2.jpg" alt="" />
-                Jassica William
-                <div className="alrt_dot"></div>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/all_instructor" className="menu--link" title="Browse Instructors">
-                <i className="uil uil-plus-circle menu--icon"></i>
-                <span className="menu--label">Browse Instructors</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div className="left_section pt-2">
-          <ul>
-            <li className="menu--item">
-              <Link to="/setting" className="menu--link" title="Setting">
-                <i className="uil uil-cog menu--icon"></i>
-                <span className="menu--label">Setting</span>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/help" className="menu--link" title="Help">
-                <i className="uil uil-question-circle menu--icon"></i>
-                <span className="menu--label">Help</span>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/report_history" className="menu--link" title="Report History">
-                <i className="uil uil-windsock menu--icon"></i>
-                <span className="menu--label">Report History</span>
-              </Link>
-            </li>
-            <li className="menu--item">
-              <Link to="/feedback" className="menu--link" title="Send Feedback">
-                <i className="uil uil-comment-alt-exclamation menu--icon"></i>
-                <span className="menu--label">Send Feedback</span>
-              </Link>
-            </li>
-          </ul>
-        </div>
-        <div className="left_footer">
-          <ul>
-            <li><Link to="/about_us">About</Link></li>
-            <li><Link to="/press">Press</Link></li>
-            <li><Link to="/contact_us">Contact Us</Link></li>
-            <li><Link to="/coming_soon">Advertise</Link></li>
-            <li><Link to="/coming_soon">Developers</Link></li>
-            <li><Link to="/terms_of_use">Copyright</Link></li>
-            <li><Link to="/terms_of_use">Privacy Policy</Link></li>
-            <li><Link to="/terms_of_use">Terms</Link></li>
-          </ul>
-          <div className="left_footer_content">
-            <p>© 2020 <strong>Cursus</strong>. All Rights Reserved.</p>
-          </div>
-        </div>
-      </div>
-    </nav>
-
-    {/* Main Content */}
-    <div className="wrapper _bg4586">
-      <div className="_216b01">
-        <div className="container">
-          <div className="row justify-content-md-center">
-            <div className="col-md-10">
-              <div className="section3125 rpt145">
-                <div className="row">
-                  <div className="col-lg-7">
-                    <a href="#" className="_216b22">
-                      <span><i className="uil uil-windsock"></i></span>Report Profile
-                    </a>
-                    <div className="dp_dt150">
-                      <div className="img148">
-                        <img src="/images/left-imgs/img-1.jpg" alt="" />
-                      </div>
-                      <div className="prfledt1">
-                        <h2>John Doe</h2>
-                        <span>Web Developer</span>
-                      </div>
-                    </div>
-                    <ul className="_ttl120">
-                      <li>
-                        <div className="_ttl121">
-                          <div className="_ttl122">Enroll Students</div>
-                          <div className="_ttl123">612K</div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="_ttl121">
-                          <div className="_ttl122">Courses</div>
-                          <div className="_ttl123">8</div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="_ttl121">
-                          <div className="_ttl122">Reviews</div>
-                          <div className="_ttl123">115K</div>
-                        </div>
-                      </li>
-                      <li>
-                        <div className="_ttl121">
-                          <div className="_ttl122">Subscribers</div>
-                          <div className="_ttl123">452K</div>
-                        </div>
-                      </li>
-                    </ul>
-                  </div>
-                  <div className="col-lg-5">
-                    <a href="#" className="_216b12">
-                      <span><i className="uil uil-windsock"></i></span>Report Profile
-                    </a>
-                    <div className="rgt-145">
-                      <ul className="tutor_social_links">
-                        <li><a href="#" className="fb"><i className="fab fa-facebook-f"></i></a></li>
-                        <li><a href="#" className="tw"><i className="fab fa-twitter"></i></a></li>
-                        <li><a href="#" className="ln"><i className="fab fa-linkedin-in"></i></a></li>
-                        <li><a href="#" className="yu"><i className="fab fa-youtube"></i></a></li>
-                      </ul>
-                    </div>
-                    <ul className="_bty149">
-                      <li><button className="subscribe-btn btn500">Subscribe</button></li>
-                      <li><button className="msg125 btn500">Message</button></li>
-                    </ul>
+        {tab === "discussion" && (
+          <div className="bg-white p-6 rounded-2xl shadow">
+            <h3 className="text-xl font-bold mb-4">Discussion</h3>
+            <div className="space-y-4">
+              <textarea className="w-full border rounded-lg p-3" placeholder="Add a public comment..."></textarea>
+              <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Post Comment</button>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex items-center gap-3 mb-2">
+                  <img src={img3} alt="User" className="w-10 h-10 rounded-full" />
+                  <div>
+                    <h5 className="font-semibold">Jane Smith</h5>
+                    <span className="text-xs text-gray-500">2 hours ago</span>
                   </div>
                 </div>
+                <p className="text-gray-700">Really enjoyed the latest course on React. 🔥</p>
               </div>
-              {/* Add more profile sections here as needed */}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default InstructorProfileView;
-
+export default InstructorProfilePage;
