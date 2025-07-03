@@ -4,6 +4,7 @@ import axios from "axios";
 const PayNowButton = ({ amount, courseId, courseTitle, thumbnailUrl }) => {
   const handlePayment = async () => {
     try {
+      // Step 1: Create Razorpay order via backend
       const res = await axios.post("http://localhost:5000/api/payment/create-order", {
         amount,
         receipt: `receipt_${courseId}`,
@@ -11,8 +12,9 @@ const PayNowButton = ({ amount, courseId, courseTitle, thumbnailUrl }) => {
 
       const { id: order_id, currency, amount: orderAmount } = res.data;
 
+      // Step 2: Configure Razorpay checkout
       const options = {
-        key: "rzp_test_qE030WJRkPSp7C",
+        key: "rzp_test_qE030WJRkPSp7C", // ✅ Use your own test key here
         amount: orderAmount,
         currency,
         name: "Cursus Platform",
@@ -35,7 +37,8 @@ const PayNowButton = ({ amount, courseId, courseTitle, thumbnailUrl }) => {
               },
               {
                 headers: {
-                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`, // ✅ Send token
                 },
               }
             );

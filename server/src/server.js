@@ -17,6 +17,8 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edtech_pl
 
 //Path for Payment 
 const razorpayRoutes = require("./routes/razorpay");
+const paymentRoutes = require("./routes/paymentRoutes");
+app.use("/api/payment", paymentRoutes);
 app.use("/api/payment", razorpayRoutes);
 app.use("/api/payment", require("./routes/razorpay"));
 

@@ -8,8 +8,8 @@ const router = express.Router();
 
 // 🧾 Razorpay config
 const razorpay = new Razorpay({
-  key_id: "rzp_test_qE030WJRkPSp7C",
-  key_secret: "dTmXZzt4JnQQchPcIYQiPTIt",
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
 // ✅ Create Order Endpoint
@@ -57,9 +57,10 @@ router.post("/verify", async (req, res) => {
   // 🔐 Verify Razorpay Signature
   const body = razorpay_order_id + "|" + razorpay_payment_id;
   const expectedSignature = crypto
-    .createHmac("sha256", "dTmXZzt4JnQQchPcIYQiPTIt")
-    .update(body)
-    .digest("hex");
+  .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+  .update(body)
+  .digest("hex");
+
 
   if (expectedSignature !== razorpay_signature) {
     return res.status(400).json({ success: false, message: "Invalid signature" });
