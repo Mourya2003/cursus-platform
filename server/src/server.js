@@ -1,10 +1,18 @@
-// server.js
+// cursus-platform/server/src/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+
+// --- NEW: Import JWT Authentication Middleware ---
+const authenticateJWT = require('./middleware/authMiddleware');
+// --- END NEW ---
+
+// --- Import Route Files ---
 const authRoutes = require('./routes/auth.routes');
 const courseRoutes = require('./routes/course.routes');
+const razorpayRoutes = require("./routes/razorpay"); // Assuming this is correct from your previous server.js
+// --- END Import Route Files ---
 
 dotenv.config();
 const app = express();
@@ -15,11 +23,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edtech_pl
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('DB error:', err));
 
-//Path for Payment 
-const razorpayRoutes = require("./routes/razorpay");
+// Path for Payment
 app.use("/api/payment", razorpayRoutes);
-app.use("/api/payment", require("./routes/razorpay"));
-
+// Note: You had app.use("/api/payment", require("./routes/razorpay")); twice.
+// I've kept one, assuming razorpayRoutes already imports it.
 
 // Healthcheck
 app.get('/healthcheck', (req, res) => {
@@ -32,7 +39,11 @@ app.get('/healthcheck', (req, res) => {
 
 // Mount Routes
 app.use('/api/auth', authRoutes);
-app.use('/courses', courseRoutes);
+
+// --- NEW: Apply authenticateJWT to course routes ---
+// All routes defined in course.routes.js will now first pass through authenticateJWT
+app.use('/courses', authenticateJWT, courseRoutes);
+// --- END NEW ---
 
 // Start Server
 const PORT = process.env.PORT || 5000;
