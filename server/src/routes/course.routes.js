@@ -1,23 +1,28 @@
 // cursus-platform/server/src/routes/course.routes.js
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose'); // Import mongoose for ObjectId comparison
-const Course = require('../models/course.model'); // Import the Course model
-const authenticateJWT = require('../middleware/authMiddleware'); // Import the middleware directly here
+const mongoose = require('mongoose');
+const Course = require('../models/course.model');
+const authenticateJWT = require('../middleware/authMiddleware');
 
 // --- Course Management Routes ---
 
 // POST /courses - Add a new course (Protected & Role-based: Only Instructors)
-router.post('/', authenticateJWT, async (req, res) => { // <-- authenticateJWT applied here
+router.post('/', authenticateJWT, async (req, res) => {
     try {
         if (req.user.role !== 'instructor') {
             return res.status(403).json({ message: 'Access denied. Only instructors can create courses.' });
         }
 
-        const { courseId, title, description, price, instructor, category } = req.body;
+        const { courseId, title, description, price, instructor, category, tags } = req.body; // <-- Added 'tags' here
 
         if (!courseId || !title || !price || !instructor || !category) {
             return res.status(400).json({ message: 'All required course fields are missing.' });
+        }
+
+        // Validate tags if provided
+        if (tags && (!Array.isArray(tags) || !tags.every(tag => typeof tag === 'string'))) {
+            return res.status(400).json({ message: 'Tags must be an array of strings.' });
         }
 
         const newCourse = new Course({
@@ -27,7 +32,8 @@ router.post('/', authenticateJWT, async (req, res) => { // <-- authenticateJWT a
             price,
             instructor,
             category,
-            instructorId: req.user.id
+            instructorId: req.user.id,
+            tags: tags || [] // <-- Assign tags, default to empty array if not provided
         });
         await newCourse.save();
 
@@ -41,27 +47,99 @@ router.post('/', authenticateJWT, async (req, res) => { // <-- authenticateJWT a
     }
 });
 
-// GET /courses - Get all courses (Publicly Accessible)
-router.get('/', async (req, res) => { // <-- NO authenticateJWT here
+// GET /courses - Get all courses with Search and Filter capabilities (Publicly Accessible)
+router.get('/', async (req, res) => {
     try {
-        const courses = await Course.find().lean();
+        const { search, category, instructor, minPrice, maxPrice, tags } = req.query; // Get query parameters
+        const query = {}; // Initialize an empty query object for MongoDB
+
+        // Search by title, description, or instructor (case-insensitive regex)
+        if (search) {
+            const searchRegex = new RegExp(search, 'i'); // 'i' for case-insensitive
+            query.$or = [ // Use $or to search across multiple fields
+                { title: searchRegex },
+                { description: searchRegex },
+                { instructor: searchRegex }
+            ];
+        }
+
+        // Filter by category (exact match, case-insensitive)
+        if (category) {
+            query.category = new RegExp(`^${category}$`, 'i'); // Exact match for category
+        }
+
+        // Filter by specific instructor name (exact match, case-insensitive)
+        if (instructor) {
+            query.instructor = new RegExp(`^${instructor}$`, 'i'); // Exact match for instructor name
+        }
+
+        // Filter by price range
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) {
+                query.price.$gte = parseFloat(minPrice); // $gte: greater than or equal to
+            }
+            if (maxPrice) {
+                query.price.$lte = parseFloat(maxPrice); // $lte: less than or equal to
+            }
+            // Basic validation for price range
+            if (isNaN(query.price.$gte) || isNaN(query.price.$lte)) {
+                return res.status(400).json({ message: 'Invalid price range provided.' });
+            }
+        }
+
+        // Filter by tags (match any of the provided tags)
+        if (tags) {
+            // If tags is a comma-separated string, split it into an array
+            const tagsArray = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
+            query.tags = { $in: tagsArray.map(tag => new RegExp(tag, 'i')) }; // Match any tag, case-insensitive
+        }
+
+        const courses = await Course.find(query).lean(); // Apply the constructed query
         res.status(200).json(courses);
     } catch (error) {
-        console.error('Get all courses error:', error);
-        res.status(500).json({ message: 'Failed to retrieve courses' });
+        console.error('Get all courses with search/filter error:', error);
+        res.status(500).json({ message: 'Failed to retrieve courses with applied filters' });
     }
 });
 
 // GET /courses/my-courses - Fetch courses created by the logged-in instructor (Protected)
-router.get('/my-courses', authenticateJWT, async (req, res) => { // <-- authenticateJWT applied here
+router.get('/my-courses', authenticateJWT, async (req, res) => {
     try {
         if (req.user.role !== 'instructor') {
             return res.status(403).json({ message: 'Access denied. Only instructors can view their own courses.' });
         }
 
-        const instructorCourses = await Course.find({
-            instructorId: new mongoose.Types.ObjectId(req.user.id)
-        }).lean();
+        // --- NEW: Add search/filter to my-courses as well (optional, but useful) ---
+        const { search, category, minPrice, maxPrice, tags } = req.query;
+        const query = { instructorId: new mongoose.Types.ObjectId(req.user.id) }; // Start with instructor filter
+
+        if (search) {
+            const searchRegex = new RegExp(search, 'i');
+            query.$or = [
+                { title: searchRegex },
+                { description: searchRegex },
+                { instructor: searchRegex }
+            ];
+        }
+        if (category) {
+            query.category = new RegExp(`^${category}$`, 'i');
+        }
+        if (minPrice || maxPrice) {
+            query.price = {};
+            if (minPrice) query.price.$gte = parseFloat(minPrice);
+            if (maxPrice) query.price.$lte = parseFloat(maxPrice);
+            if (isNaN(query.price.$gte) || isNaN(query.price.$lte)) {
+                return res.status(400).json({ message: 'Invalid price range provided.' });
+            }
+        }
+        if (tags) {
+            const tagsArray = Array.isArray(tags) ? tags : tags.split(',').map(tag => tag.trim());
+            query.tags = { $in: tagsArray.map(tag => new RegExp(tag, 'i')) };
+        }
+        // --- END NEW ---
+
+        const instructorCourses = await Course.find(query).lean(); // Apply the constructed query
 
         res.status(200).json(instructorCourses);
     } catch (error) {
@@ -72,7 +150,7 @@ router.get('/my-courses', authenticateJWT, async (req, res) => { // <-- authenti
 
 
 // GET /courses/:id - Get a specific course by ID (Publicly Accessible)
-router.get('/:id', async (req, res) => { // <-- NO authenticateJWT here
+router.get('/:id', async (req, res) => {
     try {
         const course = await Course.findOne({ courseId: req.params.id }).lean();
         if (!course) {
@@ -86,7 +164,7 @@ router.get('/:id', async (req, res) => { // <-- NO authenticateJWT here
 });
 
 // PUT /courses/:id - Update course details by ID (Protected & Role-based: Only Instructor who owns the course)
-router.put('/:id', authenticateJWT, async (req, res) => { // <-- authenticateJWT applied here
+router.put('/:id', authenticateJWT, async (req, res) => {
     try {
         if (req.user.role !== 'instructor') {
             return res.status(403).json({ message: 'Access denied. Only instructors can update courses.' });
@@ -96,6 +174,11 @@ router.put('/:id', authenticateJWT, async (req, res) => { // <-- authenticateJWT
         const updateData = req.body;
         delete updateData._id;
         delete updateData.instructorId;
+
+        // Validate tags if provided in update
+        if (updateData.tags && (!Array.isArray(updateData.tags) || !updateData.tags.every(tag => typeof tag === 'string'))) {
+            return res.status(400).json({ message: 'Tags must be an array of strings.' });
+        }
 
         const course = await Course.findOne({ courseId: id });
         if (!course) {
@@ -117,7 +200,7 @@ router.put('/:id', authenticateJWT, async (req, res) => { // <-- authenticateJWT
 });
 
 // DELETE /courses/:id - Delete a course by ID (Protected & Role-based: Only Instructor who owns the course)
-router.delete('/:id', authenticateJWT, async (req, res) => { // <-- authenticateJWT applied here
+router.delete('/:id', authenticateJWT, async (req, res) => {
     try {
         if (req.user.role !== 'instructor') {
             return res.status(403).json({ message: 'Access denied. Only instructors can delete courses.' });
