@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useEnrolledCourses } from "../components/EnrolledCoursesContext.jsx";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import { useEnrolledCourses } from "../components/EnrolledCoursesContext";
+import { Link } from "react-router-dom";
 
 const MyLearning = () => {
   const { enrolledCourses } = useEnrolledCourses();
   const [paidCourses, setPaidCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPaidCourses = async () => {
@@ -22,41 +23,54 @@ const MyLearning = () => {
         }
       } catch (err) {
         console.error("Error fetching paid courses:", err);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchPaidCourses();
   }, []);
 
-  // Merge paid + enrolled (avoid duplicates)
-  const combinedCourses = [
-    ...paidCourses.map((p) => ({
-      id: p.courseId,
-      title: p.courseTitle,
-      image: p.thumbnailUrl,
-      instructor: "Purchased Course",
-      progress: 60,
-      status: "Paid",
-      paid: true,
-    })),
-    ...enrolledCourses
-      .filter((c) => !paidCourses.find((p) => p.courseId === c.id)) // skip already paid
-      .map((c, index) => ({
-        ...c,
-        progress: 20 + index * 10,
-        status: "Enrolled (Unpaid)",
-        paid: false,
-      })),
-  ];
+  // 🔁 Merge manually enrolled + paid courses (avoid duplicates)
+  const combinedCoursesMap = new Map();
+
+  enrolledCourses.forEach((course) => {
+    combinedCoursesMap.set(course.id, {
+      ...course,
+      source: "manual",
+    });
+  });
+
+  paidCourses.forEach((paid) => {
+    combinedCoursesMap.set(paid.courseId, {
+      id: paid.courseId,
+      title: paid.courseTitle,
+      image: paid.thumbnailUrl,
+      instructor: "Paid Instructor",
+      source: "paid",
+    });
+  });
+
+  const combinedCourses = Array.from(combinedCoursesMap.values());
+
+  // 🔁 Add simulated progress
+  const coursesWithProgress = combinedCourses.map((course, index) => {
+    const progress = Math.min(100, (index + 1) * 10);
+    const status = progress === 100 ? "Completed" : "In Progress";
+    return { ...course, progress, status };
+  });
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6">My Learning</h1>
-      {combinedCourses.length === 0 ? (
-        <p>You have not enrolled or purchased any courses yet.</p>
+
+      {loading ? (
+        <p>Loading...</p>
+      ) : coursesWithProgress.length === 0 ? (
+        <p>You have not enrolled in any courses yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {combinedCourses.map((course) => (
+          {coursesWithProgress.map((course) => (
             <div key={course.id} className="bg-white rounded-lg shadow p-4 flex flex-col">
               <img
                 src={course.image}
@@ -76,7 +90,7 @@ const MyLearning = () => {
               </div>
               <p
                 className={`text-sm font-semibold mb-4 ${
-                  course.paid ? "text-green-600" : "text-yellow-600"
+                  course.status === "Completed" ? "text-green-600" : "text-yellow-600"
                 }`}
               >
                 {course.status}
@@ -85,7 +99,7 @@ const MyLearning = () => {
                 to={`/courses/${course.id}`}
                 className="mt-auto inline-block bg-blue-600 text-white text-center py-2 rounded hover:bg-blue-700 transition"
               >
-                {course.paid ? "Continue Learning" : "Preview / Pay Now"}
+                Continue Learning
               </Link>
             </div>
           ))}

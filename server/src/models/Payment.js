@@ -1,22 +1,15 @@
 const mongoose = require("mongoose");
 
 const paymentSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: "User", // if you have a user model
-  },
-  courseId: Number,
+  userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  courseId: { type: String, required: true },
   courseTitle: String,
   thumbnailUrl: String,
   amount: Number,
   razorpay_order_id: String,
   razorpay_payment_id: String,
   status: String,
-  paymentDate: {
-    type: Date,
-    default: Date.now,
-  },
+  paymentDate: Date,
 });
 
 module.exports = mongoose.model("Payment", paymentSchema);

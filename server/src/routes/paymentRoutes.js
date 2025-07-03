@@ -3,110 +3,104 @@ const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const jwt = require("jsonwebtoken");
 const Payment = require("../models/Payment");
-
+require("dotenv").config(); 
 const router = express.Router();
 
-// 🧾 Razorpay config
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Create Order Endpoint
+console.log("RAZORPAY_KEY_ID loaded:", process.env.RAZORPAY_KEY_ID);
+
+// 📌 Create Order
 router.post("/create-order", async (req, res) => {
   const { amount, currency = "INR", receipt } = req.body;
-
   try {
-    const options = {
-      amount: amount * 100, // Convert to paise
+    const order = await razorpay.orders.create({
+      amount: amount * 100,
       currency,
       receipt,
-    };
-    const order = await razorpay.orders.create(options);
+    });
     res.status(200).json(order);
   } catch (err) {
     console.error("Order creation error:", err);
-    res.status(500).json({ error: "Failed to create Razorpay order" });
+    res.status(500).json({ error: "Failed to create order" });
   }
 });
 
-// ✅ Verify Payment and Store in DB
+// ✅ Verify Signature & Save Payment
 router.post("/verify", async (req, res) => {
   const {
     razorpay_order_id,
     razorpay_payment_id,
     razorpay_signature,
     courseId,
+    courseTitle,
+    thumbnailUrl,
     amount,
   } = req.body;
 
-  // 🛡️ Extract user from JWT
   const token = req.headers.authorization?.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ error: "Unauthorized: No token provided" });
-  }
-
   let userId;
+
   try {
-    const decoded = jwt.verify(token, "your_jwt_secret"); // 🔁 Replace with your actual secret
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     userId = decoded.id;
   } catch (err) {
-    return res.status(401).json({ error: "Invalid token" });
+    return res.status(401).json({ success: false, message: "Invalid token" });
   }
 
-  // 🔐 Verify Razorpay Signature
   const body = razorpay_order_id + "|" + razorpay_payment_id;
   const expectedSignature = crypto
-  .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
-  .update(body)
-  .digest("hex");
-
+    .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+    .update(body)
+    .digest("hex");
 
   if (expectedSignature !== razorpay_signature) {
     return res.status(400).json({ success: false, message: "Invalid signature" });
   }
 
-  // 💾 Store in MongoDB
   try {
     const payment = new Payment({
       userId,
       courseId,
-      paymentId: razorpay_payment_id,
-      orderId: razorpay_order_id,
+      courseTitle,
+      thumbnailUrl,
       amount,
-      status: "success",
+      razorpay_order_id,
+      razorpay_payment_id,
+      status: "Success",
+      paymentDate: new Date(),
     });
 
     await payment.save();
-
-    return res.status(200).json({
-      success: true,
-      message: "Payment verified and saved",
-    });
+    res.status(200).json({ success: true, message: "Payment verified and saved" });
   } catch (err) {
-    console.error("Error saving to DB:", err);
-    return res.status(500).json({ success: false, message: "DB save failed" });
+    console.error("Saving payment failed:", err);
+    res.status(500).json({ success: false, message: "Error saving payment" });
   }
 });
 
-
-// ✅ Fetch all payments made by the logged-in user
-router.get("/my-payments", async (req, res) => {
+// 🧾 Get User's Successful Courses
+router.get("/enrolled", async (req, res) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) return res.status(401).json({ error: "Unauthorized" });
 
   try {
-    const decoded = jwt.verify(token, "your_jwt_secret"); // Use same JWT secret
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decoded.id;
 
-    const payments = await Payment.find({ userId }).sort({ date: -1 });
+    const enrolledCourses = await Payment.find({
+      userId,
+      status: "Success",
+    });
 
-    res.status(200).json(payments);
+    res.status(200).json({ success: true, courses: enrolledCourses });
   } catch (err) {
-    console.error("Fetch payments error:", err);
-    res.status(500).json({ error: "Failed to fetch payment history" });
+    console.error("Fetch enrolled courses error:", err);
+    res.status(500).json({ error: "Failed to fetch enrolled courses" });
   }
 });
-
 
 module.exports = router;

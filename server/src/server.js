@@ -1,16 +1,14 @@
-// cursus-platform/server/src/server.js
+// server/src/server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-
-// --- Import Route Files ---
 const authRoutes = require('./routes/auth.routes');
 const courseRoutes = require('./routes/course.routes');
-const razorpayRoutes = require("./routes/razorpay");
-// --- END Import Route Files ---
+const paymentRoutes = require('./routes/paymentRoutes');
 
-dotenv.config(); // Load environment variables first
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -20,17 +18,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/edtech_pl
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.error('DB error:', err));
 
-<<<<<<< HEAD
-//Path for Payment 
-const razorpayRoutes = require("./routes/razorpay");
-const paymentRoutes = require("./routes/paymentRoutes");
-app.use("/api/payment", paymentRoutes);
-=======
-// Path for Payment
->>>>>>> 829e60d1c462c772b8e5fa53e7092e431fc3006e
-app.use("/api/payment", razorpayRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/courses', courseRoutes);
+app.use('/api/payment', paymentRoutes);
 
-// Healthcheck
 app.get('/healthcheck', (req, res) => {
   const dbStatus = mongoose.connection.readyState;
   res.status(200).json({
@@ -39,13 +30,5 @@ app.get('/healthcheck', (req, res) => {
   });
 });
 
-// Mount Routes
-app.use('/api/auth', authRoutes);
-// --- IMPORTANT: No authenticateJWT here for /courses ---
-// authenticateJWT is now applied directly to individual routes within course.routes.js
-app.use('/courses', courseRoutes);
-// --- END IMPORTANT ---
-
-// Start Server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
